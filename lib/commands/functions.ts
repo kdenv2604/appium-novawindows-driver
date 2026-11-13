@@ -1,5 +1,8 @@
+// RU-SAR: сторонний NovaWindows1.5.0 изменён 05.11.2026; изоляция $self в рекурсивном PowerShell-поиске. Исходная Apache-2.0 сохранена.
 import { pwsh } from '../powershell';
 
+// В рекурсии PowerShell локальный $self не должен наследоваться от родительского вызова.
+// Комментарий вынесен из tagged-template: upstream btoa принимает только Latin1.
 export const FIND_CHILDREN_RECURSIVELY = pwsh /* ps1 */ `
     function Find-ChildrenRecursively {
         param (
@@ -48,6 +51,7 @@ export const FIND_CHILDREN_RECURSIVELY = pwsh /* ps1 */ `
         $children = $element.FindAll([TreeScope]::Children, [Condition]::TrueCondition)
         $validChildren = @($children | Where-Object { $_.FindFirst([TreeScope]::Element, $condition) -ne $null })
 
+        $self = $null
         if ($includeSelf) {
             $self = $element.FindFirst([TreeScope]::Element, $condition)
         }
